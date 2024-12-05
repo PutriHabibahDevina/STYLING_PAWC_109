@@ -1,0 +1,136 @@
+<div class="container mt-5">
+    <h1 class="text-center"><b>Todo List</b></h1>
+
+    <!-- Button to trigger the modal, aligned to the right -->
+    <div class="justify-content-center mb-4">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal" style="background-color: black; margin-left: 615px; margin-top: 30px; color: white;">
+            Add Todo
+        </button>
+    </div>
+
+    <!-- Modal to Add New Todo -->
+    <div id="addModal" class="modal fade" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addModalLabel" >Tambah Data</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="addTodoForm" class="my-4">
+                        <div class="input-group">
+                            <input type="text" id="newTask" class="form-control" placeholder="Add a new task..." required>
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary" style="background-color: black; margin-left: 30px; margin-top: 3px; color: white;"><b>Add</b></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <!-- Container for Todos -->
+   <div class="row justify-content-center mt-5">
+    <% todos.forEach(todo => { %>
+        <div class="col-sm-3 mb-4">
+            <div class="card text-center" style="background-color: lightgray; margin-left: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title"><b>Todo</b></h5>
+                    <p class="<%= todo.completed ? 'text-decoration-line-through' : '' %>">
+                        <%= todo.task %>
+                    </p>
+                    <div>
+                        <button class="btn btn-sm btn-success mr-2 editBtn" data-id="<%= todo.id %>">Edit</button>
+                        <button class="btn btn-sm btn-danger deleteBtn" data-id="<%= todo.id %>">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% }); %>
+    </div>
+
+
+    <!-- Edit Todo Modal -->
+    <div id="editModal" class="modal fade" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Todo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editTodoForm">
+                        <div class="form-group">
+                            <label for="editTask">Task</label>
+                            <input type="text" id="editTask" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Add new todo
+        $('#addTodoForm').on('submit', function (e) {
+            e.preventDefault();
+            const task = $('#newTask').val().trim();
+            if (task) {
+                $.ajax({
+                    url: '/todos',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ task: task }),
+                    success: function (newTodo) {
+                        location.reload(); // Reload to show the new todo
+                    },
+                    error: function (error) {
+                        console.error("Error adding task:", error.responseText);
+                    }
+                });
+            }
+        });
+
+        // Delete a todo
+        $('.deleteBtn').on('click', function () {
+            const id = $(this).data('id');
+            $.ajax({
+                url: '/todos/' + id,
+                type: 'DELETE',
+                success: function () {
+                    location.reload(); // Reload to show updated list
+                }
+            });
+        });
+
+        // Show edit modal with the current task
+        let editId;
+        $('.editBtn').on('click', function () {
+            editId = $(this).data('id');
+            const currentTask = $(this).closest('li').find('span').text();
+            $('#editTask').val(currentTask);
+            $('#editModal').modal('show');
+        });
+
+        // Update todo on form submission
+        $('#editTodoForm').on('submit', function (e) {
+            e.preventDefault();
+            const task = $('#editTask').val().trim();
+            if (task) {
+                $.ajax({
+                    url: '/todos/' + editId,
+                    type: 'PUT',
+                    data: JSON.stringify({ task: task, completed: false }),
+                    contentType: 'application/json',
+                    success: function () {
+                        location.reload(); // Reload to show the updated todo
+                    }
+                });
+            }
+        });
+    });
+</script>

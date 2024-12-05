@@ -1,0 +1,18 @@
+<% var noLayout = true; %>
+<form action="/login" method="POST">
+    <div class="card text-center" style="width: 18rem; margin-left: 600px; margin-top: 60px;">
+        <img src="/public/images/todo.png" class="card-img-top" title="Logo" alt="Logo">
+        <div class="card-body" style="background-color: lightgrey;">
+          <h5 class="card-title"><b>Sign In</b></h5>
+          <p class="card-text">Silakan Masuk</p>
+          <div class="mb-3">
+            <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+        </div>
+        <div class="mb-3">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+        </div>
+          <p>Belum punya akun? <a href="/signup">Sign Up</a></p>
+          <button type="submit" class="btn btn-primary" style="background-color: white; color: black; border: none;">Sign In</button>
+        </div>
+    </div>
+</form>
